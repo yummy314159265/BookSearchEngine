@@ -5,8 +5,9 @@ const { signToken } = require('../utils/auth');
 const resolvers = {
     Query: {
         me: async (parent, args, context) => {
+            console.log(context.user)
             if (context.user) {
-                return User.findOne({ _id: context.user._id }).populate('thoughts');
+                return User.findOne({ _id: context.user._id }).populate('savedBooks');
             }
             throw new AuthenticationError('You need to be logged in!');
         },
@@ -17,6 +18,8 @@ const resolvers = {
             const user = await User.findOne({
                 $or: [{ username }, { email }]
             })
+
+            console.log(user)
 
             if (!user) {
                 throw new AuthenticationError('No user found with this username or email');
@@ -51,7 +54,7 @@ const resolvers = {
             if (context.user) {
                 return await User.findOneAndUpdate(
                     { _id: context.user._id },
-                    { $pull: { savedBooks: bookId } },
+                    { $pull: { savedBooks: { bookId } } },
                     { new: true },
                 );
             }
